@@ -5,8 +5,10 @@ import java.util.regex.Pattern;
 
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Component;
 
-public final class PasswordSecurity {
+@Component
+public class PasswordSecurity {
 	
 	private static final String PASSWORD_PATTERN = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?!.*[!¡@#&()–[{}]:;',?¿/*~$^+=<>])(?=\\S+$).{8,12}$";
 	
@@ -16,16 +18,16 @@ public final class PasswordSecurity {
 		
 	}
 	
-	public static String encryptPassword(String password) {
+	public String encryptPassword(String password) {
 		return BCrypt.hashpw(password, BCrypt.gensalt());
 	}
 
-	public static boolean verifyPassword(String encryptedPassword, String password) {
+	public boolean verifyPassword(String encryptedPassword, String password) {
 		BCryptPasswordEncoder crypto = new BCryptPasswordEncoder();
 		return crypto.matches(encryptedPassword, password);
 	}
 	
-	public static boolean passwordValidation(String password) {
+	public boolean passwordValidation(String password) {
 		Matcher matcher = pattern.matcher(password);
         return matcher.matches();
 	}
