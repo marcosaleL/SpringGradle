@@ -34,9 +34,7 @@ public class UserEntity {
 
 	private static final String DATA_TIME_FORMAT = "LLL dd, yyyy hh:mm:ss a";
 
-	@Id/*
-	@GeneratedValue(generator = "UUID", strategy = GenerationType.AUTO)
-	@GenericGenerator(strategy = GenerationType.IDENTITY);, strategy = "org.hibernate.id.UUIDGenerator")*/
+	@Id
 	@Column(name = "id")
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
