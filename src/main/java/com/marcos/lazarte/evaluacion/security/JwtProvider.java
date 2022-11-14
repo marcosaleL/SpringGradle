@@ -41,13 +41,4 @@ public class JwtProvider {
 		}
 	}
 
-	
-	public String getUsernameFromToken(String token) {
-		try {
-			return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody().getSubject();
-		} catch (Exception e) {
-			return "Bad token";
-		}
-	}
-	
 }

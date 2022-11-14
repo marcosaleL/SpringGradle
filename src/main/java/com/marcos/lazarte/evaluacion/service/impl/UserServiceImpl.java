@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.marcos.lazarte.evaluacion.exceptions.BadRequestException;
@@ -19,26 +18,29 @@ import com.marcos.lazarte.evaluacion.security.JwtProvider;
 import com.marcos.lazarte.evaluacion.security.PasswordSecurity;
 import com.marcos.lazarte.evaluacion.service.IUserService;
 
+import lombok.AllArgsConstructor;
+
 @Service
+@AllArgsConstructor
 public class UserServiceImpl implements IUserService {
 
 	private static final String DATA_TIME_FORMAT = "LLL dd, yyyy hh:mm:ss a";
 
-	@Autowired
 	IUserRepository userRepository;
 
-	@Autowired
 	JwtProvider jwtProvider;
+	
+	PasswordSecurity passwordSecurity;
 
 	@Override
 	public ResponseSignUpDTO signUp(RequestSignUpDTO requestSignUpDTO) {
 		if (userRepository.existsByEmail(requestSignUpDTO.getEmail()))
 			throw new InternalServerErrorException("Email already exist");
-		if (!PasswordSecurity.passwordValidation(requestSignUpDTO.getPassword()))
+		if (!passwordSecurity.passwordValidation(requestSignUpDTO.getPassword()))
 			throw new BadRequestException(
 					"The password is invalid. No special characters were submitted, it must contain only one uppercase letter, two numbers, and must be between 8 and 12 characters");
 		UserEntity userEntity = new UserEntity(requestSignUpDTO);
-		userEntity.setPassword(PasswordSecurity.encryptPassword(userEntity.getPassword()));
+		userEntity.setPassword(passwordSecurity.encryptPassword(userEntity.getPassword()));
 		UserEntity userInserted = userRepository.save(userEntity);
 		ResponseSignUpDTO responseSignUp = new ResponseSignUpDTO(userInserted);
 		responseSignUp.setToken(jwtProvider.createToken(requestSignUpDTO.getEmail()));
@@ -48,10 +50,11 @@ public class UserServiceImpl implements IUserService {
 
 	@Override
 	public ResponseLoginDTO login(RequestLoginDTO requestLoginDTO) {
-		UserEntity presentUser = userRepository.findByEmail(requestLoginDTO.getEmail())
-				.orElseThrow(() -> new InternalServerErrorException("Email does not exist"));
-		if (PasswordSecurity.verifyPassword(requestLoginDTO.getPassword(), presentUser.getPassword())) {
-			if (jwtProvider.getUsernameFromToken(requestLoginDTO.getToken()).equals(requestLoginDTO.getEmail())) {
+		if (!userRepository.existsByEmail(requestLoginDTO.getEmail()))
+			throw new InternalServerErrorException("Email does not exist");
+		UserEntity presentUser = userRepository.findByEmail(requestLoginDTO.getEmail());
+		if (passwordSecurity.verifyPassword(requestLoginDTO.getPassword(), presentUser.getPassword())) {
+			if (jwtProvider.validate(requestLoginDTO.getToken())) {
 				presentUser.setLastLogin(
 						LocalDateTime.now(ZoneId.of("UTC")).format(DateTimeFormatter.ofPattern(DATA_TIME_FORMAT)));
 				UserEntity updatedUser = userRepository.save(presentUser);
