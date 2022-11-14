@@ -1,7 +1,6 @@
 package com.marcos.lazarte.evaluacion.model.dto;
 
 import java.util.List;
-import java.util.UUID;
 
 import com.marcos.lazarte.evaluacion.model.entities.PhoneEntity;
 import com.marcos.lazarte.evaluacion.model.entities.UserEntity;
@@ -17,7 +16,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ResponseLoginDTO {
 	
-	private UUID userId;
+	private Long userId;
 	private String created;
 	private String lastLogin;
 	private String token;
