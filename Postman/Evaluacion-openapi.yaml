@@ -1,0 +1,114 @@
+openapi: 3.0.3
+info:
+  version: 0.0.1
+  title: Sig-up y Login
+
+tags:
+  - name: user
+paths:
+  /sign_up:
+    post:
+      tags: 
+        - user
+      summary: Add a new user
+      description: Add a new user
+      operationId: addSignUp
+      requestBody:
+        description: Create a new user
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
+        required: true
+      responses:
+        '201':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  schemas:
+    Phones:
+      type: object
+      properties:
+        number:
+          type: integer
+          format: int64
+        cityCode:
+          type: integer
+        country:
+          type: string
+   
+    UserRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+          minLength: 8
+          maxLength: 12
+        phones:
+          type: array
+          items:
+            $ref: '#/components/schemas/Phones'
+            
+    UserResponse:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+        phones:
+          type: array
+          items:
+            $ref: '#/components/schemas/Phones'
+        id:
+          type: integer
+        created:
+          type: string
+          format: date
+        lastLogin:
+          type: string
+          format: date
+        token:
+          type: string
+        isActive:
+          type: boolean
+    
+    Error:
+      type: object
+      properties:
+        timestamp: 
+          type: string
+          format: date-time
+        code:
+          type: integer
+        detail:
+          type: string
+        
+    ErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Error'
